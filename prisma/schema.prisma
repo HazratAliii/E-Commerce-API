@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VENDOR
+  USER
+  ADMIN
+}
+
+model User {
+  id                  String               @id @unique @default(uuid())
+  email               String               @unique
+  password            String
+  user_info           User_info?
+  user_has_permission User_has_permssion[]
+  order               Order[]
+}
+
+model User_info {
+  id           String  @id @default(uuid())
+  user_id      String  @unique
+  name         String
+  address      String
+  phone        String
+  role         Role
+  buiness_name String?
+  bank_info    String?
+  user         User    @relation(fields: [user_id], references: [id])
+}
+
+model Permission {
+  id                  String               @id @default(uuid())
+  name                String
+  user_has_permission User_has_permssion[]
+}
+
+model User_has_permssion {
+  id            String     @id @default(uuid())
+  permission_id String     @unique
+  user_id       String     @unique
+  permission    Permission @relation(fields: [permission_id], references: [id])
+  user          User       @relation(fields: [user_id], references: [id])
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  parent_id String?
+  name      String
+  children  Category[] @relation("ChildCategories")
+  parent    Category?  @relation("ChildCategories", fields: [parent_id], references: [id])
+  product   Product[]
+}
+
+model Product {
+  id             String         @id @default(uuid())
+  user_id        String
+  name           String
+  description    String
+  price          Int
+  stock_quantity Int
+  category_id    String
+  category       Category       @relation(fields: [category_id], references: [id])
+  ordered_item   Ordered_item[]
+}
+
+model Order {
+  id           String         @id @default(uuid())
+  user_id      String
+  order_date   DateTime
+  total_amount Int
+  user         User           @relation(fields: [user_id], references: [id])
+  ordered_ite  Ordered_item[]
+}
+
+model Ordered_item {
+  id         String  @id @default(uuid())
+  order_id   String
+  product_id String
+  quantity   Int
+  unit_price Int
+  order      Order   @relation(fields: [order_id], references: [id])
+  product    Product @relation(fields: [product_id], references: [id])
+}
