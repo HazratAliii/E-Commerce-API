@@ -58,6 +58,7 @@ export class AuthService {
       res.status(404).json('User not found');
     }
   }
+
   findAll() {
     return this.prisma.user.findMany();
   }

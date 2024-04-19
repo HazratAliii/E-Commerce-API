@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,10 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  VENDOR
-  USER
-  ADMIN
+model Role {
+  id    String      @id @unique @default(uuid())
+  role  String
+  users User_info[]
 }
 
 model User {
@@ -34,7 +28,8 @@ model User_info {
   name         String
   address      String
   phone        String
-  role         Role
+  role         Role    @relation(fields: [role_id], references: [id])
+  role_id      String
   buiness_name String?
   bank_info    String?
   user         User    @relation(fields: [user_id], references: [id])
@@ -73,23 +68,40 @@ model Product {
   category_id    String
   category       Category       @relation(fields: [category_id], references: [id])
   ordered_item   Ordered_item[]
+  stock          Stock[]
 }
 
 model Order {
-  id           String         @id @default(uuid())
-  user_id      String
-  order_date   DateTime
-  total_amount Int
-  user         User           @relation(fields: [user_id], references: [id])
-  ordered_ite  Ordered_item[]
+  id             String         @id @default(uuid())
+  user_id        String
+  order_date     DateTime
+  total_amount   Int
+  address        String
+  mayment_method String
+  order_status   String
+  tax            Int
+  discount       Int
+  payable_amount Int
+  user           User           @relation(fields: [user_id], references: [id])
+  ordered_ite    Ordered_item[]
 }
 
 model Ordered_item {
+  id             String  @id @default(uuid())
+  order_id       String
+  product_id     String
+  quantity       Int
+  unit_price     Int
+  tax            Int
+  discount       Int
+  payable_amount Int
+  order          Order   @relation(fields: [order_id], references: [id])
+  product        Product @relation(fields: [product_id], references: [id])
+}
+
+model Stock {
   id         String  @id @default(uuid())
-  order_id   String
   product_id String
   quantity   Int
-  unit_price Int
-  order      Order   @relation(fields: [order_id], references: [id])
   product    Product @relation(fields: [product_id], references: [id])
 }
