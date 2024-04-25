@@ -11,6 +11,11 @@ export class UsersService {
   @UseGuards(AuthGuard)
   create(createUserDto: CreateUserDto) {}
 
+  test() {
+    console.log('Inside test');
+    return 'It works';
+  }
+
   findAll(res) {
     // console.log(res.user);
     return `Hello `;
